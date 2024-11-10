@@ -1,0 +1,41 @@
+{
+  "name": "raftlab_assignment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "npm install && npx tsc",
+    "compile": "tsc",
+    "start": "npm run compile && nodemon ./dist/index.js",
+    "watch": "tsc -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/server": "^4.11.2",
+    "apollo-server-express": "^3.13.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "graphql": "^16.9.0",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.4.1",
+    "mongoose": "^8.8.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.9.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
+  }
+}
