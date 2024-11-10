@@ -9,6 +9,7 @@ This project implements a Task Management API using GraphQL. It provides the abi
 - **Create Tasks**: Create new tasks with a title, description, and status.
 - **Query Tasks**: Retrieve a list of tasks stored in the database.
 - **Real-time Communication**: Use WebSocket for real-time task updates.
+- **User authentication**: Authentication and authorization with JWT.
 
 ## Getting Started
 
@@ -26,3 +27,6 @@ These instructions will help you set up the project locally.
    ```bash
    git clone https://github.com/devnom123/raftlab_assignment.git
    cd raftlab_assignment
+
+
+
