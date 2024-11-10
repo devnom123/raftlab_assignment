@@ -13,14 +13,15 @@ export const taskResolvers = {
         if (!user) {
           throwError('Unauthorized', 401);
         }
-        let cachedTasks = await redisClient.get(`tasks:all`);
+        console.log('user', user);
+        let cachedTasks = await redisClient.get(`tasks:${user._id}`);
         if (cachedTasks) {
           console.log('from cache');
           return JSON.parse(cachedTasks);
         }
         else {
           let tasks = await getTasks({ userId: user._id });
-          await redisClient.set(`tasks:all`, JSON.stringify(tasks), 'EX', 3600);
+          await redisClient.set(`tasks:${user._id}`, JSON.stringify(tasks), 'EX', 3600);
           return tasks;
         }
       }
@@ -80,7 +81,7 @@ export const taskResolvers = {
         if (!task) {
           throwError('Task not found', 404);
         }
-        await redisClient.del('tasks:all');
+        await redisClient.del(`tasks:${user._id}`);
         io.emit('updateTask', { id, title, description, completed });
         return await updateTask(id, { title, description, completed });
       } catch (e) {

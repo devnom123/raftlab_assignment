@@ -6,6 +6,7 @@ export const createTask = async (taskData: ITask) => {
 };
 
 export const getTasks = async (query: Partial<ITask>) => {
+  console.log('query', query);
   return await Task.find(query);
 };
 

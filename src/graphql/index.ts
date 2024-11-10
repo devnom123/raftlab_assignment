@@ -15,6 +15,7 @@ const graphqlServer = new ApolloServer({
     if (token) {
       try {
         user = jwt.verify(token, process.env.JWT_SECRET);
+        user = { _id: user.userId };
       } catch (err) {
         throw new Error('Authentication error');
       }
