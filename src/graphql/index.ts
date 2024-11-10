@@ -5,7 +5,7 @@ import { userResolvers } from './resolvers/userResolver.js';
 import { userTypeDefs } from './schema/userTypeDefs.js';
 import jwt from 'jsonwebtoken';
 
-const server = new ApolloServer({
+const graphqlServer = new ApolloServer({
   typeDefs: [userTypeDefs, taskTypeDefs],
   resolvers: [userResolvers, taskResolvers],
   context: ({ req }) => {
@@ -29,6 +29,6 @@ const server = new ApolloServer({
   }
 });
 
-await server.start();
+await graphqlServer.start();
 
-export default server;
+export default graphqlServer;

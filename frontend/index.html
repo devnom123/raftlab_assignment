@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    
+</head>
+<body>
+    <h1>Task Management</h1>
+
+    <button onclick="joinRoom('room1')">Join Room 1</button>
+    <button onclick="joinRoom('room2')">Join Room 2</button>
+    <button onclick="sendMessage('room1', 'Hello Room 1!')">Send to Room 1</button>
+    <button onclick="sendMessage('room2', 'Hello Room 2!')">Send to Room 2</button>
+    <button onclick="leaveRoom('room1')">Leave Room 1</button>
+
+    <h3>Messages</h3>
+    <div id="messages"></div>
+
+    <!-- show tasks -->
+    <h3>Tasks</h3>
+    <div id="tasks">
+        <ul></ul>
+    </div>
+
+   
+</body>
+<!-- <script src="/socket.io/socket.io.js"></script> -->
+<script type="module">
+   import { io } from "https://cdn.socket.io/4.8.0/socket.io.esm.min.js";
+
+   const socket = io('http://localhost:4000'); // Connect to server
+
+    // Join a room
+    window.joinRoom = (room)=> {
+        socket.emit('joinRoom', room); // Emit join room event
+        console.log(`Joining room: ${room}`);
+    }
+
+    // Leave a room
+    window.leaveRoom = (room)=> {
+        socket.emit('leaveRoom', room); // Emit leave room event
+        console.log(`Leaving room: ${room}`);
+    }
+
+    // Send a message to a room
+    window.sendMessage= (room, message)=> {
+        socket.emit('messageRoom', room, message); // Emit message to a room
+        console.log(`Sending message to ${room}: ${message}`);
+    }
+
+    socket.on('message', (data) => {
+        console.log('Message:', data);
+        const messageDiv = document.getElementById('messages');
+        const newMessage = document.createElement('p');
+        newMessage.textContent = data.message;
+        messageDiv.appendChild(newMessage);
+    });
+
+    socket.on('createTask', (data) => {
+        console.log('Tasks:', data);
+        const taskList = document.querySelector('#tasks ul');
+        const newTask = document.createElement('li');
+        newTask.textContent = data.title;
+        taskList.appendChild(newTask);
+    });
+
+    socket.on('connect_error', (err) => {
+        console.error('Socket.IO Connection Error:', err);
+    });
+</script>
+</html>

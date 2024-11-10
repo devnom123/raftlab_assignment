@@ -4,6 +4,7 @@ import { IUser } from '../../models/userModel.js';
 import { CustomError, throwError } from '../../utils/errorUtils.js';
 import redisClient from '../../config/redis.config.js';
 import { idSchema, taskSchema, taskUpdateSchema } from '../../utils/validator.js';
+import { io } from '../../app.js';
 
 export const taskResolvers = {
   Query: {
@@ -54,6 +55,8 @@ export const taskResolvers = {
         if (!user) {
           throwError('Unauthorized', 401);
         }
+        //sending the task to all connected clients
+        io.emit('createTask', { title, description, completed });
         return await createTask({ title, description, completed: completed, userId: user._id });
       } catch (e) {
         throwError(e.message, e.code || 500)
@@ -78,6 +81,7 @@ export const taskResolvers = {
           throwError('Task not found', 404);
         }
         await redisClient.del('tasks:all');
+        io.emit('updateTask', { id, title, description, completed });
         return await updateTask(id, { title, description, completed });
       } catch (e) {
         throwError(e.message, e.code || 500)
