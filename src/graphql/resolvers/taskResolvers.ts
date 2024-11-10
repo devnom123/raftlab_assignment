@@ -3,6 +3,7 @@ import { createTask, getTasks, getTaskById, updateTask, deleteTask, findOneTask 
 import { IUser } from '../../models/userModel.js';
 import { CustomError, throwError } from '../../utils/errorUtils.js';
 import redisClient from '../../config/redis.config.js';
+import { idSchema, taskSchema, taskUpdateSchema } from '../../utils/validator.js';
 
 export const taskResolvers = {
   Query: {
@@ -28,6 +29,10 @@ export const taskResolvers = {
 
     },
     getTaskById: async (_: any, { id }: { id: string }, { user }: { user: IUser }) => {
+      const { error } = idSchema.validate({ id });
+      if (error) {
+        throwError(error.message, 400);
+      }
       try {
         if (!user) {
           throwError('Unauthorized', 401);
@@ -40,6 +45,10 @@ export const taskResolvers = {
   },
   Mutation: {
     createTask: async (_: any, { title, description }: { title: string; description: string }, { user }: { user: IUser }) => {
+      const { error } = taskSchema.validate({ title, description });
+      if (error) {
+        throwError(error.message, 400);
+      }
       try {
         let completed: boolean = false;
         if (!user) {
@@ -52,6 +61,14 @@ export const taskResolvers = {
     },
     updateTask: async (_: any, { id, title, description, completed }:
       { id: string; title?: string; description?: string; completed?: boolean }, { user }: { user: IUser }) => {
+      const { error } = taskUpdateSchema.validate({ title, description, completed });
+      if (error) {
+        throwError(error.message, 400);
+      }
+      const { error: updateError } = idSchema.validate({ id });
+      if (updateError) {
+        throwError(updateError.message, 400);
+      }
       try {
         if (!user) {
           throwError('Unauthorized', 401);
@@ -67,6 +84,10 @@ export const taskResolvers = {
       }
     },
     deleteTask: async (_: any, { id }: { id: string }, { user }: { user: IUser }) => {
+      const { error } = idSchema.validate({ id });
+      if (error) {
+        throwError(error.message, 400);
+      }
       try {
         if (!user) {
           throwError('Unauthorized', 401);

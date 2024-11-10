@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { IUser } from '../../models/userModel.js';
 import { throwError } from '../../utils/errorUtils.js';
+import { userLoginSchema, userRegistrationSchema } from '../../utils/validator.js';
 
 export const userResolvers = {
     Query: {
@@ -12,6 +13,10 @@ export const userResolvers = {
     },
     Mutation: {
         signup: async (_: any, { userInput }: { userInput: { name: string; email: string; password: string } }) => {
+            const { error } = userRegistrationSchema.validate(userInput);
+            if (error) {
+                throwError(error.message, 400);
+            }
             try {
                 let { name, email, password } = userInput;
                 let isUserExist = await getUserByEmail(email);
@@ -29,7 +34,13 @@ export const userResolvers = {
                 throwError(error.message, error.code || 500);
             }
         },
-        login: async (_: any, { email, password }: { email: string; password: string }) => {
+        login: async (_: any, { userInput }:{ userInput: {email:string,password:string} }) => {
+            const { email, password } = userInput;
+            console.log('email', email);
+            const { error } = userLoginSchema.validate({ email, password });
+            if (error) {
+                throwError(error.message, 400);
+            }
             try {
                 let user = await getUserByEmail(email);
             if (!user) {
