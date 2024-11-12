@@ -58,6 +58,7 @@ export const taskResolvers = {
         }
         //sending the task to all connected clients
         io.emit('createTask', { title, description, completed });
+        await redisClient.del(`tasks:${user._id}`);
         return await createTask({ title, description, completed: completed, userId: user._id });
       } catch (e) {
         throwError(e.message, e.code || 500)

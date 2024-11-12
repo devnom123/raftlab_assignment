@@ -7,7 +7,7 @@ import { userLoginSchema, userRegistrationSchema } from '../../utils/validator.j
 
 export const userResolvers = {
     Query: {
-        currentUser: async (_: any, __: any, { user }: { user: IUser }) => {
+        currentUser: async (_: any, __: any, { user }: { user: IUser }):Promise<IUser> => {
             return user;
         }
     },

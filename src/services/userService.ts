@@ -9,7 +9,7 @@ export const getUsers = async () => {
     return await User.find();
 };
 
-export const getUserById = async (id: string) => {
+export const getUserByIdr = async (id: string):Promise<IUser> => {
     return await User.findById(id)
 }
 

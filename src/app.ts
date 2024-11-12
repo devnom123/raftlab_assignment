@@ -1,24 +1,34 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
-import graphqlServer from './graphql/index.js';
+// import graphqlServer from './graphql/index.js';
 import http from 'http';
 import cors from 'cors';
-import { WebSocketServer } from 'ws';
 //import  socket io
 import { Server } from 'socket.io';
+import { expressMiddleware } from '@apollo/server/express4';
+import jwt from 'jsonwebtoken';
+import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { typeDefs, resolvers } from './graphql/index.js';
+
 
 dotenv.config();
 connectDB();
 
 const app = express();
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
 
-// const wss = new WebSocketServer({
-//     server
-// });
+const server = new ApolloServer({
+    typeDefs: typeDefs,
+    resolvers: resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+});
 
-const io = new Server(server, {
+await server.start();
+
+
+const io = new Server(httpServer, {
     cors: {
         origin: '*',
     }
@@ -53,41 +63,25 @@ io.on('connection', (socket) => {
     });
 });
 
-graphqlServer.applyMiddleware({ app });
+app.use('/graphql', cors(), express.json(), expressMiddleware(server,
+    {
+        context: async ({ req }) => {
+            const token = req.headers.authorization || '';
+            let user = null;
 
-const rooms = {};
+            if (token) {
+                try {
+                    user = jwt.verify(token, process.env.JWT_SECRET);
+                    user = { _id: user.userId };
+                } catch (err) {
+                    throw new Error('Authentication error');
+                }
+            }
 
-// wss.on('connection', (ws) => {
-//     console.log('New WebSocket connection');
+            return { user };
+        },
+    }));
 
-//     // Handle incoming messages from the client
-//     ws.on('message', (message,data) => {
-//         console.log('Received from client:', message.toString());
-//         let convertMessage = JSON.parse(message.toString());
-//         console.log('convertMessage', convertMessage);
-//         if(convertMessage && convertMessage.action === 'join') {
-//             const room = convertMessage.room;
-//             if(!rooms[room]) {
-//                 rooms[room] = [];
-//             }
-//             rooms[room].push(ws);
-//         }
-//         else if(convertMessage && convertMessage.action === 'leave') {
-//             ws.leave(convertMessage.room);
-//             console.log('Left room', convertMessage.room);
-//             ws.send('You left room ' + convertMessage.room);
-//         }
-//         else if(convertMessage && convertMessage.action === 'messageRoom') {
-//             wss.to(convertMessage.room).emit('message', 'Hello from room');
-//             console.log('Message sent to room', convertMessage.room);
-//         }
-//     });
-
-//     // Handle WebSocket disconnection
-//     ws.on('close', () => {
-//         console.log('Client disconnected');
-//     });
-// });
 
 app.get('/', (_, res) => {
     res.send('Task Manager API');
@@ -101,5 +95,5 @@ export {
     io
 }
 
-export default server
+export default httpServer
 
